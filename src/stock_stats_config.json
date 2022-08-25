@@ -1,0 +1,33 @@
+{
+    "features": {
+        "enableInfluxDb": true
+    },
+    "tickers": [
+        "SPY",
+        "QQQ"
+    ],
+    "updateTimeMins": 2,
+    "influxdb": {
+        "url": "http://localhost:8086/write",
+        "auth": {
+            "user": "",
+            "pasw": ""
+        },
+        "dbName": "stocks",
+        "stocks_tickers": [
+            {
+                "name": "SPY",
+                "measurement": "stock_stats",
+                "tagSet": "Close={}",
+                "fieldSet": "Price={}"
+            },
+            {
+                "name": "QQQ",
+                "measurement": "stock_stats",
+                "tagSet": "Close={}",
+                "fieldSet": "Price={}"
+            }
+        ],
+        "__comment": "https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial"
+    }
+}
