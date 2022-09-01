@@ -45,7 +45,9 @@ class StockStats(Thread):
     def run(self):
         while True:
             if self.is_market_close():
-                sleep(MARKET_CLOSE_SLEEP)
+                # TODO: Find out how many seconds until
+                #       market opens again.
+                sleep(TIMER_SLEEP_MIN)
                 continue
 
             try:
