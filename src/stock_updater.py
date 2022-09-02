@@ -6,6 +6,7 @@ import yfinance as yf
 from time import sleep
 from threading import Thread
 from logger import Logger
+from influxdb_client import TickerType
 log = Logger.getInstance().getLogger()
 
 TIMER_SLEEP_MIN = (5 * 60)
@@ -18,6 +19,7 @@ class StockStats(Thread):
 
     def __init__(self, tickers, influxdb_clients=None, timer=TIMER_SLEEP_MIN):
         Thread.__init__(self)
+        self.setDaemon(True)
         self.tickers = tickers
         self.influxdb_clients = influxdb_clients
         self.timer = timer
@@ -42,11 +44,25 @@ class StockStats(Thread):
 
         return False
 
+    def update_crypto_coins(self):
+        if self.influxdb_clients:
+            for name, db_client in self.influxdb_clients.items():
+                if db_client.get_type() != TickerType.CRYPTO:
+                    continue
+                log.info("Updating {}".format(name))
+                ticker = yf.Ticker(name)
+                history = ticker.history()
+                last_quote = (history.tail(1)['Close'].iloc[0])
+                data = ("Price={:0.2f}").format(last_quote)
+                # log.info(data)
+                db_client.write_data(data=data)
+                sleep(2)
+
     def run(self):
         while True:
             if self.is_market_close():
-                # TODO: Find out how many seconds until
-                #       market opens again.
+                # Crypto never sleeps!
+                self.update_crypto_coins()
                 sleep(TIMER_SLEEP_MIN)
                 continue
 

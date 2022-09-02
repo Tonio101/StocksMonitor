@@ -1,7 +1,14 @@
 import requests
 
+from enum import Enum
 from logger import Logger
 log = Logger.getInstance().getLogger()
+
+
+class TickerType(Enum):
+    UNKNOWN = 0
+    STOCKS = 1
+    CRYPTO = 2
 
 
 class InfluxDbClient(object):
@@ -40,6 +47,13 @@ class InfluxDbClient(object):
         self.params = (
             ('db', db_name),
         )
+
+    def get_type(self) -> TickerType:
+        if "stock_stats" in self.measurement:
+            return TickerType.STOCKS
+        elif "crypto_stats" in self.measurement:
+            return TickerType.CRYPTO
+        return TickerType.UNKNOWN
 
     def write_data(self, data):
         """
