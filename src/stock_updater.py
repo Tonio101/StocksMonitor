@@ -53,7 +53,8 @@ class StockStats(Thread):
                 ticker = yf.Ticker(name)
                 history = ticker.history()
                 last_quote = (history.tail(1)['Close'].iloc[0])
-                data = ("Price={:0.2f}").format(last_quote)
+                # data = ("Price={:0.2f}").format(last_quote)
+                data = ("Price={}").format(last_quote)
                 # log.info(data)
                 db_client.write_data(data=data)
                 sleep(2)
@@ -73,7 +74,11 @@ class StockStats(Thread):
                         ticker = yf.Ticker(name)
                         history = ticker.history()
                         last_quote = (history.tail(1)['Close'].iloc[0])
-                        data = ("Price={:0.2f}").format(last_quote)
+                        data = 0
+                        if db_client.get_type() != TickerType.CRYPTO:
+                            data = ("Price={:0.2f}").format(last_quote)
+                        else:
+                            data = ("Price={}").format(last_quote)
                         # log.info(data)
                         db_client.write_data(data=data)
                         sleep(2)

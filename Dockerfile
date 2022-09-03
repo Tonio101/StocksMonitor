@@ -5,7 +5,7 @@ COPY ./src /usr/src/app
 COPY requirements.txt /usr/src/app
 WORKDIR /usr/src/app
 
-RUN python3 -m pip install --upgrade pip
+# RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r requirements.txt
 
 CMD ["python3", "main.py", "--config", "stock_stats_config.local.json"]
