@@ -3,7 +3,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 FILE = '/tmp/stock_stats.log'
-FILE_MAXSIZE = 10 * 1024 * 1024  # 10MB
+FILE_MAXSIZE = 1 * 1024 * 1024  # 1MB
 FILE_BACKUP_CNT = 1
 LOG_FORMAT = '%(asctime)s:%(module)s:%(levelname)s - %(message)s'
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
