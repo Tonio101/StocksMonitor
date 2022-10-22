@@ -11,6 +11,7 @@ log = Logger.getInstance().getLogger()
 
 TIMER_SLEEP_MIN = (5 * 60)
 MARKET_CLOSE_SLEEP = (30 * 60)
+RATE_LIMIT_REQUEST = (10)
 TIME_ZONE = pytz.timezone('US/Pacific')
 US_HOLIDAYS = holidays.US()
 
@@ -57,7 +58,7 @@ class StockStats(Thread):
                 data = ("Price={}").format(last_quote)
                 # log.info(data)
                 db_client.write_data(data=data)
-                sleep(2)
+                sleep(RATE_LIMIT_REQUEST)
 
     def run(self):
         while True:
@@ -81,7 +82,7 @@ class StockStats(Thread):
                             data = ("Price={}").format(last_quote)
                         # log.info(data)
                         db_client.write_data(data=data)
-                        sleep(2)
+                        sleep(RATE_LIMIT_REQUEST)
                 else:
                     for t in self.tickers:
                         ticker = yf.Ticker(t)
