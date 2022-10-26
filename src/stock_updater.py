@@ -60,36 +60,46 @@ class StockStats(Thread):
                 db_client.write_data(data=data)
                 sleep(RATE_LIMIT_REQUEST)
 
+    def update_stock_tickers(self):
+        if self.influxdb_clients:
+            # Inject to InfluxDB
+            for name, db_client in self.influxdb_clients.items():
+                ticker = yf.Ticker(name)
+                history = ticker.history()
+                last_quote = (history.tail(1)['Close'].iloc[0])
+                data = 0
+                if db_client.get_type() != TickerType.CRYPTO:
+                    data = ("Price={:0.2f}").format(last_quote)
+                else:
+                    data = ("Price={}").format(last_quote)
+                # log.info(data)
+                db_client.write_data(data=data)
+                sleep(RATE_LIMIT_REQUEST)
+        else:
+            for t in self.tickers:
+                ticker = yf.Ticker(t)
+                history = ticker.history()
+                last_quote = (history.tail(1)['Close'].iloc[0])
+                log.info(last_quote)
+
     def run(self):
         while True:
             if self.is_market_close():
                 # Crypto never sleeps!
-                self.update_crypto_coins()
+                try:
+                    self.update_crypto_coins()
+                except Exception as e:
+                    log.error("Failed to update crypto prices {}".format(
+                        e
+                    ))
                 sleep(TIMER_SLEEP_MIN)
                 continue
 
             try:
-                if self.influxdb_clients:
-                    # Inject to InfluxDB
-                    for name, db_client in self.influxdb_clients.items():
-                        ticker = yf.Ticker(name)
-                        history = ticker.history()
-                        last_quote = (history.tail(1)['Close'].iloc[0])
-                        data = 0
-                        if db_client.get_type() != TickerType.CRYPTO:
-                            data = ("Price={:0.2f}").format(last_quote)
-                        else:
-                            data = ("Price={}").format(last_quote)
-                        # log.info(data)
-                        db_client.write_data(data=data)
-                        sleep(RATE_LIMIT_REQUEST)
-                else:
-                    for t in self.tickers:
-                        ticker = yf.Ticker(t)
-                        history = ticker.history()
-                        last_quote = (history.tail(1)['Close'].iloc[0])
-                        log.info(last_quote)
-            except IndexError as e:
-                log.error(e)
+                self.update_stock_tickers()
+            except Exception as e:
+                log.error("Failed to update stock tickers {}".format(
+                    e
+                ))
 
             sleep(self.timer)
